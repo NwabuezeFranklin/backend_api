@@ -5,5 +5,5 @@ class LinkSerializer(ModelSerializer):
     
     class Meta:
         model=Link
-        fields= ['id', 'original_link', 'shortened_link', ]
-        read_only_fields = ['shortened_link']
+        fields= ['id', 'original_link', 'shortened_link', 'count' ]
+        read_only_fields = [ 'count']
