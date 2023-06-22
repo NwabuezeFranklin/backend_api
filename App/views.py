@@ -19,7 +19,7 @@ class ShortenerListAPIView(viewsets.ModelViewSet):
     
     def get_queryset(self):
         try:
-            user = self.request.user
+            user = self.request.user.id
             return Link.objects.filter(user=user)
         except:
             return Response("Invalid user", status=status.HTTP_400_BAD_REQUEST)
