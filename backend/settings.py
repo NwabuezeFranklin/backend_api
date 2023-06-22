@@ -43,17 +43,6 @@ INSTALLED_APPS = [
     # Custom
     'api',
     'App',
-
-    # Third Party
-    # 'import_export',
-    # 'crispy_forms',
-    # 'mathfilters',
-    # 'django.contrib.humanize',
-    # 'ckeditor',
-    # 'ckeditor_uploader',
-    # 'django_ckeditor_5',
-    # 'taggit',
-    'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
@@ -136,15 +125,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-      'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-      }
-   }
-}
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=50),
