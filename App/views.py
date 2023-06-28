@@ -25,30 +25,35 @@ class ShortenerListAPIView(viewsets.ModelViewSet):
             return Response("Invalid user", status=status.HTTP_400_BAD_REQUEST)
         
         
-    @swagger_auto_schema(operation_summary="Create a Shortened Link for the current user. Note that only the original_link field is required.")
-    def create(self, request, *args, **kwargs):
-        user = request.user
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+@swagger_auto_schema(operation_summary="Create a Shortened Link for the current user. Note that only the original_link field is required.")
+def create(self, request, *args, **kwargs):
+    # Check if the user is authenticated
+    if not request.user.is_authenticated:
+        return Response("Please login first.", status=status.HTTP_401_UNAUTHORIZED)
+    
+    user = request.user
+    serializer = self.get_serializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    
+    original_link = serializer.validated_data['original_link']
+    
+    # Check if the user already has a link with the same original_link
+    if Link.objects.filter(user=user, original_link=original_link).exists():
+        return Response("User already has a link with the same original_link.", status=status.HTTP_400_BAD_REQUEST)
+    
+    # Generate a unique shortened_link
+    while True:
+        random_string = ''.join(choices(ascii_letters, k=6))
+        new_link = settings.HOST_URL + '/' + random_string
         
-        original_link = serializer.validated_data['original_link']
-        
-        # Check if the user already has a link with the same original_link
-        if Link.objects.filter(user=user, original_link=original_link).exists():
-            return Response("User already has a link with the same original_link.", status=status.HTTP_400_BAD_REQUEST)
-        
-        # Generate a unique shortened_link
-        while True:
-            random_string = ''.join(choices(ascii_letters, k=6))
-            new_link = settings.HOST_URL + '/' + random_string
-            
-            # Check if the shortened_link already exists
-            if not Link.objects.filter(shortened_link=new_link).exists():
-                break
-        
-        serializer.save(user=user, shortened_link=new_link)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # Check if the shortened_link already exists
+        if not Link.objects.filter(shortened_link=new_link).exists():
+            break
+    
+    serializer.save(user=user, shortened_link=new_link)
+    headers = self.get_success_headers(serializer.data)
+    return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
     @swagger_auto_schema(operation_summary="Edit the Shortened Link. Note that only the shortened_link field can be modified.")
     def update(self, request, *args, **kwargs):
