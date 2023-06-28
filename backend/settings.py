@@ -198,4 +198,4 @@ STATIC_ROOT = BASE_DIR / 'static'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # config
-HOST_URL='http://127.0.0.1:8000'
+HOST_URL='https://bit.up.railway.app'
