@@ -37,7 +37,7 @@ class ShortenerListAPIView(viewsets.ModelViewSet):
     
         # Check if the user already has a link with the same original_link
         if Link.objects.filter(user=user, original_link=original_link).exists():
-            return Response("Link already exists in your Dashboard", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Link already exists in My URLs", status=status.HTTP_400_BAD_REQUEST)
         
         # Generate a unique shortened_link
         while True:
