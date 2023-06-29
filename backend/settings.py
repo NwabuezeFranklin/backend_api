@@ -32,7 +32,7 @@ CSRF_TRUSTED_ORIGINS = ['https://bit.up.railway.app','https://bit.up.railway.app
 # Application definition
 
 
-SITE_ID=1
+SITE_ID=2
 
 INSTALLED_APPS = [
 
