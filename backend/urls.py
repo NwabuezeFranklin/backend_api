@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/', include("api.urls")),
     path('',include('App.urls')),
     path('<str:shortener_link>',Redirector.as_view(),name='redirector'),
+    path('accounts/', include('allauth.urls'))
     # path('ckeditor/', include('ckeditor_uploader.urls')),
     # path("ckeditor5/", include('django_ckeditor_5.urls')),
 
