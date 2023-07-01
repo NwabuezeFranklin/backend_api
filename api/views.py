@@ -1,21 +1,18 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from api.models import User
 from django.contrib.auth import get_user_model, login, logout
 from api.serializer import MyTokenObtainPairSerializer, RegisterSerializer,UserLoginSerializer, UserSerializer
-from rest_framework.decorators import api_view
-# from . serializer import UserRegisterSerializer, UserLoginSerializer, UserSerializer
-from rest_framework.decorators import api_view
+
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
-from .validations import custom_validation, validate_email, validate_password
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication
-
+from django.conf import settings
+from django.http import HttpResponse
+import requests
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -73,3 +70,45 @@ def testEndPoint(request):
         data = f'Congratulation your API just responded to POST request with text: {text}'
         return Response({'response': data}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+def google_login_callback(request):
+    # Retrieve the authorization code from the query parameters
+    code = request.GET.get('code', '')
+
+    # Exchange the authorization code for an access token
+    token_url = 'https://oauth2.googleapis.com/token'
+    token_data = {
+        'code': code,
+        'client_id': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+        'client_secret': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
+        'redirect_uri': 'https://bit.up.railway.app/google/login/callback/',
+        'grant_type': 'authorization_code',
+    }
+    token_response = requests.post(token_url, data=token_data)
+
+    if token_response.status_code == 200:
+        # Access token successfully obtained
+        access_token = token_response.json().get('access_token', '')
+
+        # Use the access token to retrieve user information from Google
+        user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
+        headers = {'Authorization': f'Bearer {access_token}'}
+        user_info_response = requests.get(user_info_url, headers=headers)
+
+        if user_info_response.status_code == 200:
+            # User information retrieved successfully
+            user_info = user_info_response.json()
+
+            # Process the user information and create or authenticate the user in your system
+            # Example: check if the user already exists and log them in
+            # ...
+            
+            # Redirect the user to the desired page after successful login
+            return HttpResponse("Login successful. Redirecting...")
+        else:
+            # Error retrieving user information from Google
+            return HttpResponse("Error retrieving user information from Google.")
+    else:
+        # Error exchanging authorization code for access token
+        return HttpResponse("Error exchanging authorization code for access token.")
