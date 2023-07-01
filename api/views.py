@@ -1,5 +1,5 @@
 from api.models import User
-from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import get_user_model, login, logout, authenticate
 from api.serializer import MyTokenObtainPairSerializer, RegisterSerializer,UserLoginSerializer, UserSerializer
 
 from rest_framework.response import Response
@@ -100,12 +100,23 @@ def google_login_callback(request):
             # User information retrieved successfully
             user_info = user_info_response.json()
 
-            # Process the user information and create or authenticate the user in your system
-            # Example: check if the user already exists and log them in
-            # ...
-            
-            # Redirect the user to the desired page after successful login
-            return HttpResponse("Login successful. Redirecting...")
+            # Check if the user is already registered
+            try:
+                # Try to retrieve the user from the database based on their email
+                user = User.objects.get(email=user_info['email'])
+                # Authenticate and log in the user
+                user = authenticate(request, username=user.username, password=user.password)
+                login(request, user)
+                return HttpResponse("Login successful. Redirecting...")
+            except User.DoesNotExist:
+                # User is not registered, proceed with registration
+                user = User.objects.create_user(email=user_info['email'], username=user_info['email'])
+                # You may set additional properties or perform other actions here
+                user.save()
+                # Authenticate and log in the newly registered user
+                user = authenticate(request, username=user.username, password=user.password)
+                login(request, user)
+                return HttpResponse("Registration successful. Redirecting...")
         else:
             # Error retrieving user information from Google
             return HttpResponse("Error retrieving user information from Google.")
