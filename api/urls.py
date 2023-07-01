@@ -13,4 +13,6 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='auth_register'),
     path('test/', views.testEndPoint, name='test'),
     path('', views.getRoutes),
+    # path('register-and-login/', views.register_and_login, name='register_and_login'),
+    path('google/login/callback/', views.google_login_callback, name='google_login_callback'),
 ]
