@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     'App',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
     'corsheaders',
     
 ]
@@ -90,15 +93,37 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                'social_django.context_processors.backends', #add
+                'social_django.context_processors.login_redirect', #add
+                'django.template.context_processors.request',
             ],
         },
     },
 ]
 
 AUTHENTICATION_BACKENDS = [
+    # Google OAuth2
+    'social_core.backends.google.GoogleOAuth2',
+    
+    # drf-social-oauth2
+    'drf_social_oauth2.backends.DjangoOAuth2',
+    
+    # Django
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+
+# Google configuration
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "961412236234-7pnkd8e69l0i31hmnbm90e2gmjdhuocq.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
+
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -147,6 +172,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'drf_social_oauth2.authentication.SocialAuthentication',
     ],
 }
 
