@@ -72,6 +72,7 @@ def testEndPoint(request):
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
 
+
 def google_login_callback(request):
     # Retrieve the authorization code from the query parameters
     code = request.GET.get('code', '')
@@ -101,11 +102,12 @@ def google_login_callback(request):
             user_info = user_info_response.json()
 
             # Check if the user is already registered
+            User = get_user_model()
             try:
                 # Try to retrieve the user from the database based on their email
                 user = User.objects.get(email=user_info['email'])
                 # Authenticate and log in the user
-                user = authenticate(request, username=user.username, password=user.password)
+                user = authenticate(request, username=user.username, password=user.password, backend='django.contrib.auth.backends.ModelBackend')
                 login(request, user)
                 return HttpResponse("Login successful. Redirecting...")
             except User.DoesNotExist:
@@ -114,7 +116,7 @@ def google_login_callback(request):
                 # You may set additional properties or perform other actions here
                 user.save()
                 # Authenticate and log in the newly registered user
-                user = authenticate(request, username=user.username, password=user.password)
+                user = authenticate(request, username=user.username, password=user.password, backend='django.contrib.auth.backends.ModelBackend')
                 login(request, user)
                 return HttpResponse("Registration successful. Redirecting...")
         else:
